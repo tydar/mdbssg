@@ -1,0 +1,44 @@
+{{ define "head" }}
+{{ end }}
+
+{{define "body"}}
+<form action="/new/" method="post">
+	<div class="grid">
+		<label for="title">
+			Title
+			<input type="text"  id="title" name="title" placeholder="Title" value="{{.Post.Title}}" required>
+		</label>
+
+		<label for="subtitle">
+			Subtitle
+			<input type="text" id="subtitle" name="subtitle" placeholder="Subtitle" value="{{.Post.Subtitle}}">
+		</label>
+	</div>
+
+	<div class="grid">
+		<label for="author">
+			Author
+			<input type="text" id="author" name="author" placeholder="Author" value="{{.Post.Author}}" required>
+		</label>
+
+		<label for="date">
+			Publish Date
+			<input type="date" id="date" name="date" value="{{.Post.Pubdate}}" required>
+		</label>
+	</div>
+
+	<label for="content">
+		Body
+		<textarea 
+			type="textarea" 
+			id="content" 
+			name="content" 
+			placeholder="The body of your post..." 
+			style="white-space: pre-line;"
+		>
+			{{.Post.Content}}
+		</textarea>
+	</label>	
+	<button type="submit">Submit</button>
+</form>
+{{ end }}

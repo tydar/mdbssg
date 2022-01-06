@@ -1,0 +1,21 @@
+{{define "head"}}
+{{end}}
+
+{{define "body"}}
+<form action="/changepwd/" method="post">
+		<label for="oldpassword">
+			Current Password
+			<input type="password" id="oldpassword" name="oldpassword" placeholder="Old Password" required>
+		</label>
+
+		<label for="newpassword">
+			New Password
+			<input type="password" id="newpassword" name="newpassword" placeholder="New Password" required>
+		</label>
+		<label for="confirmpassword">
+			Confirm New Password
+			<input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
+		</label>
+	<button type="submit">Submit</button>
+</form>
+{{end}}

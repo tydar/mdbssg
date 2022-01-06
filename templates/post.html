@@ -1,0 +1,15 @@
+{{ define "head" }}
+{{ end }}
+
+{{ define "body" }}
+<hgroup>
+	<h1> {{ .Post.Title }} </h1>
+	<h3> {{ .Post.Subtitle }} </h3>
+	<small>{{ .Post.Author }} -- {{ .Post.Pubdate }}</small>
+</hgroup>
+<div>
+{{ range .Post.Content }}
+<p>{{ . }}</p>
+{{ end }}
+</div>
+{{ end }}

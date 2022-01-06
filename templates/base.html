@@ -1,0 +1,31 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+		<meta charset="utf-8">
+		{{ template "head" . }}
+	</head>
+	<body>
+		<header class="container">
+			<nav>
+				<ul><li><h2>MDBSSG</h2></li></ul>
+				<ul>
+					{{ if not .LoggedIn }}
+						<li><a href="/signin/">Sign In</a></li>
+					{{ else }}
+						<li><a href="/changepwd/">Change Password</a></li>
+						<li><a href="/signout/">Sign Out</a></li>
+					{{ end }}
+				</ul>
+			</nav>
+		</header>
+		<main class="container">
+			{{ if .Flash }}
+			<article> {{ .Flash }} </article>
+			{{ end }}
+			{{ template "body" . }}
+		</main>
+	</body>
+</html>
+{{ end }}
