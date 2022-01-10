@@ -17,24 +17,25 @@ type postResponse struct {
 	Subtitle string
 	Author   string
 	Content  []string
-	Pubdate  time.Time
+	Pubdate  string
 }
 
 // creates a postResponse object from a models.Post
 func postResponseFromPostModel(post models.Post) postResponse {
 	tokContent := strings.Split(strings.ReplaceAll(post.Content, "\r\n", "\n"), "\n\n")
+	pd := post.Pubdate.Format("2006-01-02")
 	return postResponse{
 		Title:    post.Title,
 		Subtitle: post.Subtitle,
 		Author:   post.Author,
 		Content:  tokContent,
-		Pubdate:  post.Pubdate,
+		Pubdate:  pd,
 	}
 }
 
 // ViewPost handles a server-side rendered post for pre-generation review
 func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
-	slug := r.URL.Path[len("/posts/"):] // get the part after /post/ with slicing
+	slug := r.URL.Path[len("/post/"):] // get the part after /post/ with slicing
 	if len(slug) > 0 {
 		// if we have a slug, we pull the post and generate it
 		// don't think we need to filter by username here
@@ -83,12 +84,18 @@ func (env *Env) EditPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 		return
 	}
 
+	// pull out some specific fields from the models.Post
+	// because postResponse doesn't give what we need
 	td := struct {
-		Post     models.Post
+		Slug     string
+		Post     postResponse
+		Content  string
 		LoggedIn bool
 		Flash    string
 	}{
-		Post:     post,
+		Slug:     post.Slug,
+		Content:  post.Content,
+		Post:     postResponseFromPostModel(post),
 		LoggedIn: true,
 		Flash:    "",
 	}
@@ -153,7 +160,7 @@ func (env *Env) NewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		http.Redirect(w, r, "/posts/"+slug, http.StatusFound)
+		http.Redirect(w, r, "/post/"+slug, http.StatusFound)
 		return
 	} else if r.Method == "GET" {
 		td := struct {
@@ -188,6 +195,7 @@ func (env *Env) SavePost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 	pubdate, err := time.Parse(dateParseString, date)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	post := models.Post{
@@ -200,21 +208,26 @@ func (env *Env) SavePost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 		Slug:          slug,
 	}
 
-	_, err = env.posts.GetBySlug(r.Context(), slug)
-	if err == nil {
+	post, err = env.posts.GetBySlug(r.Context(), slug)
+	if err == nil && post.OwnerUsername == username {
 		fmt.Println("updating")
 		err := env.posts.Update(r.Context(), post)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
+	} else if post.OwnerUsername != username {
+		http.Error(w, "auth: incorrect user", http.StatusUnauthorized)
+		return
 	} else {
 		fmt.Println("creating")
 		err := env.posts.Create(r.Context(), post)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
-	http.Redirect(w, r, "/posts/"+slug, http.StatusFound)
+	http.Redirect(w, r, "/post/"+slug, http.StatusFound)
 }
 
 // GeneratePosts invokes functions to generate a new static site
@@ -235,13 +248,13 @@ func (env *Env) GeneratePosts(w http.ResponseWriter, r *http.Request, au AuthUse
 			return
 		}
 
-		err = saveGeneratedPost(text, p.Slug, "output")
+		err = saveGeneratedPost(text, p.Slug, "output", username)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
-	http.Redirect(w, r, "/static/", http.StatusFound)
+	http.Redirect(w, r, "/static/"+username+"/", http.StatusFound)
 }
 
 func (env *Env) generatePost(pr postResponse) (string, error) {
@@ -259,8 +272,14 @@ func (env *Env) generatePost(pr postResponse) (string, error) {
 	return buf.String(), nil
 }
 
-func saveGeneratedPost(text, slug, dir string) error {
-	f, err := os.Create("static/" + slug + ".html")
+func saveGeneratedPost(text, slug, dir, username string) error {
+	path := filepath.Join(".", "static", username)
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.Create(filepath.Join(path, slug) + ".html")
 	if err != nil {
 		return err
 	}

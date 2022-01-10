@@ -39,7 +39,7 @@ func main() {
 	http.HandleFunc("/changepwd/", handlers.NewAuthMW(env.ChangePassword, env).ServeHTTP)
 	http.HandleFunc("/signup/", env.SignUpHandler)
 	http.HandleFunc("/signout/", handlers.NewAuthMW(env.SignOut, env).ServeHTTP)
-	http.HandleFunc("/posts/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
+	http.HandleFunc("/post/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
 	http.HandleFunc("/edit/", handlers.NewAuthMW(env.EditPost, env).ServeHTTP)
 	http.HandleFunc("/save/", handlers.NewAuthMW(env.SavePost, env).ServeHTTP)
 	http.HandleFunc("/generate/", handlers.NewAuthMW(env.GeneratePosts, env).ServeHTTP)

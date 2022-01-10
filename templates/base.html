@@ -9,14 +9,12 @@
 	<body>
 		<header class="container">
 			<nav>
-				<ul><li><h2>MDBSSG</h2></li></ul>
+				<ul><li><strong>MDBSSG</strong></li></ul>
 				<ul>
-					{{ if not .LoggedIn }}
-						<li><a href="/signin/">Sign In</a></li>
-					{{ else }}
-						<li><a href="/changepwd/">Change Password</a></li>
-						<li><a href="/signout/">Sign Out</a></li>
-					{{ end }}
+					<li><a href="/generate/">Gen</a></li>
+					<li><a href="/new/">New</a></li>
+					<li><a href="/changepwd/">Account</a></li>
+					<li><a href="/signout/">Sign Out</a></li>
 				</ul>
 			</nav>
 		</header>

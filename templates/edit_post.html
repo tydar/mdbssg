@@ -2,7 +2,7 @@
 {{ end }}
 
 {{define "body"}}
-<form action="/save/{{ .Post.Slug }}">
+<form action="/save/{{ .Slug }}">
 	<div class="grid">
 		<label for="title">
 			Title
@@ -36,7 +36,7 @@
 			placeholder="The body of your post..." 
 			style="white-space: pre-line;"
 		>
-			{{.Post.Content}}
+			{{.Content}}
 		</textarea>
 	</label>	
 	<button type="submit">Submit</button>

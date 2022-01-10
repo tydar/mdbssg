@@ -84,8 +84,14 @@ func (env *Env) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		// successfully signed up user, redirect to sign in form
+		td := TemplateData{Flash: "Account successfully created!"}
+		err := env.templates["signin"].ExecuteTemplate(w, "base", td)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
-	return
 }
 
 func (env *Env) SignOut(w http.ResponseWriter, r *http.Request, au AuthUser) {
