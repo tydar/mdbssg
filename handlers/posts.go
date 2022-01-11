@@ -10,7 +10,10 @@ import (
 	"time"
 
 	"github.com/tydar/mdbssg/models"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+// --- response models
 
 type postResponse struct {
 	Title    string
@@ -32,6 +35,20 @@ func postResponseFromPostModel(post models.Post) postResponse {
 		Pubdate:  pd,
 	}
 }
+
+type listResponse struct {
+	Title string
+	Slug  string
+}
+
+func listResponseFromPostModel(post models.Post) listResponse {
+	return listResponse{
+		Title: post.Title,
+		Slug:  post.Slug,
+	}
+}
+
+// --- handlers
 
 // ViewPost handles a server-side rendered post for pre-generation review
 func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
@@ -67,6 +84,29 @@ func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 	} else {
 		// had no slug after the URL
 		// we want a list of posts that belong to the logged-in user
+		posts, err := env.posts.GetByUsername(r.Context(), au.user.Username)
+		if err != nil && err != mongo.ErrNoDocuments {
+			http.Error(w, fmt.Sprintf("list view: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		listPosts := make([]listResponse, len(posts))
+		if len(posts) > 0 {
+			for i := range posts {
+				listPosts[i] = listResponseFromPostModel(posts[i])
+			}
+		}
+
+		td := struct {
+			Flash string
+			Posts []listResponse
+		}{
+			Flash: "",
+			Posts: listPosts,
+		}
+		if err := env.templates["list_posts"].ExecuteTemplate(w, "base", td); err != nil {
+			http.Error(w, fmt.Sprintf("list view: %v", err), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -256,6 +296,8 @@ func (env *Env) GeneratePosts(w http.ResponseWriter, r *http.Request, au AuthUse
 	}
 	http.Redirect(w, r, "/static/"+username+"/", http.StatusFound)
 }
+
+// --- utility functions
 
 func (env *Env) generatePost(pr postResponse) (string, error) {
 	t := env.templates["gen_post"]

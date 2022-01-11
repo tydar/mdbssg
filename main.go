@@ -32,6 +32,7 @@ func main() {
 	t["edit_post"] = template.Must(template.ParseFiles("templates/base.html", "templates/edit_post.html"))
 	t["gen_post"] = template.Must(template.ParseFiles("templates/base_gen.html", "templates/post.html"))
 	t["new_post"] = template.Must(template.ParseFiles("templates/base.html", "templates/new_post.html"))
+	t["list_posts"] = template.Must(template.ParseFiles("templates/base.html", "templates/posts.html"))
 
 	env := handlers.NewEnv(um, pm, t)
 
