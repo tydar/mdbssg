@@ -62,6 +62,11 @@ func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 			return
 		}
 
+		canEdit := false
+		if au.user.Username == post.OwnerUsername {
+			canEdit = true
+		}
+
 		// need to find a cleaner way to document typing for these structs
 		// actually what we want to do is create a PostResponse type
 		// and reformat the models.Post.Content -> []string split on newlines
@@ -70,10 +75,14 @@ func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 			Post     postResponse
 			LoggedIn bool
 			Flash    string
+			Slug     string
+			CanEdit  bool
 		}{
 			Post:     postResponseFromPostModel(post),
 			LoggedIn: false,
 			Flash:    "",
+			Slug:     slug,
+			CanEdit:  canEdit,
 		}
 
 		err = env.templates["view_post"].ExecuteTemplate(w, "base", td)
@@ -303,9 +312,11 @@ func (env *Env) generatePost(pr postResponse) (string, error) {
 	t := env.templates["gen_post"]
 	buf := new(bytes.Buffer)
 	td := struct {
-		Post postResponse
+		Post    postResponse
+		CanEdit bool
 	}{
-		Post: pr,
+		Post:    pr,
+		CanEdit: false,
 	}
 	err := t.ExecuteTemplate(buf, "base", td)
 	if err != nil {

@@ -12,4 +12,7 @@
 <p>{{ . }}</p>
 {{ end }}
 </div>
+{{ if .CanEdit }}
+<a href="/edit/{{ .Slug }}"><button type="button">Edit Post</button></a>
+{{ end }}
 {{ end }}

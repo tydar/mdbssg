@@ -4,6 +4,7 @@ import (
 	"context"
 	"html/template"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/tydar/mdbssg/handlers"
@@ -17,13 +18,23 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	dbUrl, prs := os.LookupEnv("DATABASE_URL")
+	if !prs {
+		dbUrl = "mongodb://localhost:27017"
+	}
+
+	port, prs := os.LookupEnv("PORT")
+	if !prs {
+		port = "8080"
+	}
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUrl))
 	if err != nil {
 		panic(err)
 	}
 
-	um := models.NewUserModel(client, "test")
-	pm := models.NewPostModel(client, "test")
+	um := models.NewUserModel(client, "mdbssg")
+	pm := models.NewPostModel(client, "mdbssg")
 
 	t := map[string]*template.Template{"signin": template.Must(template.ParseFiles("templates/base.html", "templates/signin.html"))}
 	t["changepwd"] = template.Must(template.ParseFiles("templates/base.html", "templates/changepwd.html"))
@@ -49,7 +60,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic(err)
 	}
