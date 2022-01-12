@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -73,7 +74,7 @@ func (pm *PostModel) Update(ctx context.Context, post Post) error {
 	if err != nil {
 		return err
 	} else if ur.ModifiedCount == 0 {
-		return errors.New("post update failed")
+		return errors.New(fmt.Sprintf("post update failed: %+v", post))
 	}
 	return nil
 }

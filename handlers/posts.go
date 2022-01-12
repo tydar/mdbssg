@@ -257,19 +257,17 @@ func (env *Env) SavePost(w http.ResponseWriter, r *http.Request, au AuthUser) {
 		Slug:          slug,
 	}
 
-	post, err = env.posts.GetBySlug(r.Context(), slug)
-	if err == nil && post.OwnerUsername == username {
-		fmt.Println("updating")
+	postVal, err := env.posts.GetBySlug(r.Context(), slug)
+	if err == nil && postVal.OwnerUsername == username {
 		err := env.posts.Update(r.Context(), post)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	} else if post.OwnerUsername != username {
+	} else if postVal.OwnerUsername != username {
 		http.Error(w, "auth: incorrect user", http.StatusUnauthorized)
 		return
 	} else {
-		fmt.Println("creating")
 		err := env.posts.Create(r.Context(), post)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
