@@ -47,6 +47,7 @@ func main() {
 
 	env := handlers.NewEnv(um, pm, t)
 
+	http.HandleFunc("/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
 	http.HandleFunc("/signin/", env.SignIn)
 	http.HandleFunc("/changepwd/", handlers.NewAuthMW(env.ChangePassword, env).ServeHTTP)
 	http.HandleFunc("/signup/", env.SignUpHandler)

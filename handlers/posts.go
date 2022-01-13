@@ -52,7 +52,10 @@ func listResponseFromPostModel(post models.Post) listResponse {
 
 // ViewPost handles a server-side rendered post for pre-generation review
 func (env *Env) ViewPost(w http.ResponseWriter, r *http.Request, au AuthUser) {
-	slug := r.URL.Path[len("/post/"):] // get the part after /post/ with slicing
+	slug := ""
+	if len(r.URL.Path) > 6 { // check that we are on the /post/ route, not /
+		slug = r.URL.Path[len("/post/"):] // get the part after /post/ with slicing
+	}
 	if len(slug) > 0 {
 		// if we have a slug, we pull the post and generate it
 		// don't think we need to filter by username here
