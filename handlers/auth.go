@@ -29,7 +29,12 @@ func NewAuthMW(h AuthenticatedHandler, e *Env) *AuthMW {
 func (a *AuthMW) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, token, err := a.e.getSignedInUser(r)
 	if err != nil {
-		http.Error(w, "please sign-in", http.StatusUnauthorized)
+		td := struct {
+			Flash string
+		}{
+			Flash: "Please log in!",
+		}
+		a.e.templates["signin"].ExecuteTemplate(w, "base", td)
 		return
 	}
 
