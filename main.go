@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,7 +34,7 @@ func main() {
 
 	bucket, prs := os.LookupEnv("BUCKET")
 	if !prs {
-		bucket = "mdbssg-test-bucket"
+		log.Fatal("no google storage name in $BUCKET")
 	}
 
 	_, prs = os.LookupEnv("HEROKU")
