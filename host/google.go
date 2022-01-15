@@ -14,28 +14,24 @@ import (
 
 //GSHost represents a Google Cloud Storage hosting solution
 type GSHost struct {
+	client *storage.Client
 	bucket string
 }
 
-func NewGSHost(bucket string) *GSHost {
+func NewGSHost(bucket string, client *storage.Client) *GSHost {
 	return &GSHost{
+		client: client,
 		bucket: bucket,
 	}
 }
 
 func (g *GSHost) Save(text, slug, prefix string) error {
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("storage.NewClient: %v", err)
-	}
-	defer client.Close()
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+	ctx, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
-	wc := client.Bucket(g.bucket).Object(filepath.Join(prefix, slug) + ".html").NewWriter(ctx)
-	if _, err = io.Copy(wc, strings.NewReader(text)); err != nil {
+	wc := g.client.Bucket(g.bucket).Object(filepath.Join(prefix, slug) + ".html").NewWriter(ctx)
+	if _, err := io.Copy(wc, strings.NewReader(text)); err != nil {
 		return fmt.Errorf("io.Copy: %v", err)
 	}
 

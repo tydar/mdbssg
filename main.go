@@ -13,6 +13,8 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"cloud.google.com/go/storage"
 )
 
 func main() {
@@ -27,6 +29,11 @@ func main() {
 	port, prs := os.LookupEnv("PORT")
 	if !prs {
 		port = "8080"
+	}
+
+	bucket, prs := os.LookupEnv("BUCKET")
+	if !prs {
+		bucket = "mdbssg-test-bucket"
 	}
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUrl))
@@ -47,7 +54,12 @@ func main() {
 	t["list_posts"] = template.Must(template.ParseFiles("templates/base.html", "templates/posts.html"))
 
 	//theHost := host.NewLocalHost("static")
-	theHost := host.NewGSHost("mdbssg-test-bucket")
+	gsClient, err := storage.NewClient(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	theHost := host.NewGSHost(bucket, gsClient)
 	env := handlers.NewEnv(um, pm, t, theHost)
 
 	http.HandleFunc("/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
