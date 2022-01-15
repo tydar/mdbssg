@@ -20,13 +20,12 @@ RUN go build -o /mdbssg
 ##
 ## Deploy
 ##
-FROM golang:1.17-bullseye AS deploy
+FROM gcr.io/distroless/base-debian11 AS deploy
 
 WORKDIR /app
 
 COPY --from=build /mdbssg ./mdbssg
 COPY templates/*.html ./templates/
-COPY creds-to-file.sh /creds-to-file.sh
 
 USER nonroot:nonroot
 

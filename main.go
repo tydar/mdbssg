@@ -36,6 +36,21 @@ func main() {
 		bucket = "mdbssg-test-bucket"
 	}
 
+	_, prs = os.LookupEnv("HEROKU")
+	if prs {
+		// we need to get our creds from the environment and write them to the disk so it works
+		creds := os.Getenv("GOOGLE_CREDENTIALS")
+		f, err := os.Create("gcp-credentials.json")
+		if err != nil {
+			panic(err)
+		}
+		_, err = f.Write([]byte(creds))
+		if err != nil {
+			panic(err)
+		}
+		f.Close()
+	}
+
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUrl))
 	if err != nil {
 		panic(err)
