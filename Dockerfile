@@ -26,6 +26,7 @@ WORKDIR /app
 
 COPY --from=build /mdbssg ./mdbssg
 COPY templates/*.html ./templates/
+COPY creds-to-file.sh /creds-to-file.sh
 
 USER nonroot:nonroot
 
