@@ -40,7 +40,7 @@ func main() {
 	if prs {
 		// we need to get our creds from the environment and write them to the disk so it works
 		creds := os.Getenv("GOOGLE_CREDENTIALS")
-		f, err := os.Create("gcp-credentials.json")
+		f, err := os.Create("/app/gcp-credentials.json")
 		if err != nil {
 			panic(err)
 		}
