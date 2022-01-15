@@ -12,6 +12,7 @@ RUN go mod download
 COPY *.go ./
 COPY models/*.go ./models/
 COPY handlers/*.go ./handlers/
+COPY host/*.go ./host/
 COPY templates/*.html ./templates/
 
 RUN go build -o /mdbssg
