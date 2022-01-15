@@ -4,6 +4,7 @@ import (
 	"context"
 	"html/template"
 
+	"github.com/tydar/mdbssg/host"
 	"github.com/tydar/mdbssg/models"
 )
 
@@ -13,6 +14,7 @@ import (
 type Env struct {
 	users     Users
 	posts     Posts
+	theHost   host.Host
 	templates map[string]*template.Template
 }
 
@@ -33,10 +35,11 @@ type Posts interface {
 	Update(ctx context.Context, post models.Post) error
 }
 
-func NewEnv(users Users, posts Posts, templates map[string]*template.Template) *Env {
+func NewEnv(users Users, posts Posts, templates map[string]*template.Template, theHost host.Host) *Env {
 	return &Env{
 		users:     users,
 		posts:     posts,
 		templates: templates,
+		theHost:   theHost,
 	}
 }

@@ -298,7 +298,7 @@ func (env *Env) GeneratePosts(w http.ResponseWriter, r *http.Request, au AuthUse
 			return
 		}
 
-		err = saveGeneratedPost(text, p.Slug, "output", username)
+		err = env.theHost.Save(text, p.Slug, username)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/tydar/mdbssg/handlers"
+	"github.com/tydar/mdbssg/host"
 	"github.com/tydar/mdbssg/models"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -45,7 +46,8 @@ func main() {
 	t["new_post"] = template.Must(template.ParseFiles("templates/base.html", "templates/new_post.html"))
 	t["list_posts"] = template.Must(template.ParseFiles("templates/base.html", "templates/posts.html"))
 
-	env := handlers.NewEnv(um, pm, t)
+	theHost := host.NewLocalHost("static")
+	env := handlers.NewEnv(um, pm, t, theHost)
 
 	http.HandleFunc("/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
 	http.HandleFunc("/signin/", env.SignIn)
