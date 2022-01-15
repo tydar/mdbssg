@@ -20,7 +20,7 @@ RUN go build -o /mdbssg
 ##
 ## Deploy
 ##
-FROM gcr.io/distroless/base-debian10 AS deploy
+FROM golang:1.17-bullseye AS deploy
 
 WORKDIR /app
 
