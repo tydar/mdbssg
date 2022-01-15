@@ -46,7 +46,8 @@ func main() {
 	t["new_post"] = template.Must(template.ParseFiles("templates/base.html", "templates/new_post.html"))
 	t["list_posts"] = template.Must(template.ParseFiles("templates/base.html", "templates/posts.html"))
 
-	theHost := host.NewLocalHost("static")
+	//theHost := host.NewLocalHost("static")
+	theHost := host.NewGSHost("mdbssg-test-bucket")
 	env := handlers.NewEnv(um, pm, t, theHost)
 
 	http.HandleFunc("/", handlers.NewAuthMW(env.ViewPost, env).ServeHTTP)
